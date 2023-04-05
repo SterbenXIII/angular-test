@@ -16,6 +16,7 @@ export class AppComponent {
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: {
+    target: any;
     clientX: number;
     clientY: number;
     currentTarget: { offsetLeft: number; offsetTop: number };
@@ -27,9 +28,11 @@ export class AppComponent {
       event.currentTarget.offsetTop
     );
 
+    const scrollPosition =
+      document.getElementById('search-result')?.scrollTop || 0;
     this.position = {
-      clientX: event.clientX - event.currentTarget.offsetLeft,
-      clientY: event.clientY - event.currentTarget.offsetTop,
+      clientX: event.clientX,
+      clientY: event.clientY + scrollPosition,
     };
   }
   private position = { clientX: 0, clientY: 0 };
@@ -68,7 +71,7 @@ export class AppComponent {
     this.dialog.open(DialogComponent, {
       data: {
         isImage,
-        position: this.getCursorPosititionStyle(),
+        position: this.getCursorPositionStyle(),
       },
     });
   }
@@ -107,7 +110,7 @@ export class AppComponent {
     };
   }
 
-  public getCursorPosititionStyle(): Position {
+  public getCursorPositionStyle(): Position {
     return {
       position: 'relative',
       left: `${this.position.clientX}px`,
