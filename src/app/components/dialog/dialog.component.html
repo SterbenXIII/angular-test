@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Title</h1>
+<div mat-dialog-content>
+  <form [formGroup]="uploadForm" (ngSubmit)="submit()">
+    <input
+      *ngIf="data.isImage"
+      type="file"
+      accept="image/*"
+      (change)="showPreview($event)"
+    />
+    <input
+      *ngIf="!data.isImage"
+      formControlName="notion"
+      placeholder="Enter notion"
+    />
+    <button *ngIf="!data.isImage" type="submit">Submit</button>
+  </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+</div>

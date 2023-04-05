@@ -1,0 +1,64 @@
+<div class="container" style="background-color: gray">
+  <div
+    class="zoom-container"
+    (contextmenu)="displayContextMenu($event); (false)"
+    style="background-color: aqua"
+  >
+    <div class="zoom-controls">
+      <button (click)="zoomIn()">+</button>
+      <button (click)="zoomOut()">-</button>
+    </div>
+    <div class="zoom-container">
+      <div
+        class="zoom-target"
+        [ngStyle]="{ transform: 'scale(' + zoomScale + ')' }"
+      >
+        <div
+          cdkDrag
+          class="image_container"
+          *ngFor="let images of this.dataService.images | async; let i = index"
+          [ngStyle]="images.position"
+        >
+          <div class="imagePreview" *ngIf="images && images.image !== ''">
+            <button (click)="this.removeItem(i, true)" mat-button>X</button>
+            <img [src]="images.image" />
+          </div>
+        </div>
+        <div
+          cdkDrag
+          class="notion_container"
+          *ngFor="let notions of this.dataService.notion | async; let i = index"
+          [ngStyle]="notions.position"
+          style="background-color: azure"
+        >
+          <div class="notionPreview" *ngIf="notions && notions.notion !== ''">
+            <button (click)="removeItem(i)" mat-button>X</button>
+            <p>{{ notions.notion }}</p>
+          </div>
+        </div>
+        <h1 cdkDrag>Zoom In/Out</h1>
+
+        <div
+          class="search-results"
+          infiniteScroll
+          [infiniteScrollDistance]="2"
+          [infiniteScrollThrottle]="50"
+          (scrolled)="onScroll()"
+          [infiniteScrollDisabled]="isFullListDisplayed"
+          [scrollWindow]="false"
+        >
+          <p *ngFor="let item of itemsToShow; let i = index">
+            <img [src]="item.src" alt="" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-context-menu
+  *ngIf="rightClickMenuItems.length > 0 && isDisplayContextMenu"
+  [ngStyle]="getRightClickMenuStyle()"
+  [contextMenuItems]="rightClickMenuItems"
+  (onContextMenuItemClick)="handleMenuItemClick($event)"
+></app-context-menu>
