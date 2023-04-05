@@ -13,7 +13,7 @@ export class ContextMenuComponent {
   @Output()
   onContextMenuItemClick: EventEmitter<any> = new EventEmitter<any>();
 
-  onContextMenuClick(event: any, data: any): any {
+  public onContextMenuClick(event: any, data: any): any {
     this.onContextMenuItemClick.emit({
       event,
       data,

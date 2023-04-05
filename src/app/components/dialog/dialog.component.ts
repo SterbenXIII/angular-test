@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ImagesModel } from '../../Interfaces/images-model';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DataService } from 'src/app/services/data.service';
 import { UploadForm } from 'src/app/Interfaces/upload-form-model';
 
@@ -16,6 +15,8 @@ export class DialogComponent {
     public fb: FormBuilder,
     private dataService: DataService
   ) {
+    console.log(data);
+
     this.uploadForm = this.fb.group<UploadForm>({
       avatar: new FormControl('', { nonNullable: true }),
       notion: new FormControl('', { nonNullable: true }),
@@ -32,7 +33,7 @@ export class DialogComponent {
 
     (this.uploadForm.get('avatar') as any).updateValueAndValidity();
 
-    const reader = new FileReader();
+    const reader: FileReader = new FileReader();
     reader.onload = () => {
       this.dataService.images.next([
         ...this.dataService.images.getValue(),
@@ -44,8 +45,8 @@ export class DialogComponent {
     };
     reader.readAsDataURL(file);
   }
-  // Submit Form
-  submit() {
+
+  public submit() {
     console.log(this.uploadForm.value);
     this.dataService.notion.next([
       ...this.dataService.notion.getValue(),

@@ -1,7 +1,5 @@
 import { Component, HostListener } from '@angular/core';
 import { ContextMenuModel } from './Interfaces/context-menu-model';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { DataService } from './services/data.service';
@@ -22,23 +20,21 @@ export class AppComponent {
     clientY: number;
     currentTarget: { offsetLeft: number; offsetTop: number };
   }) {
+    console.log(
+      event.clientX,
+      event.clientY,
+      event.currentTarget.offsetLeft,
+      event.currentTarget.offsetTop
+    );
+
     this.position = {
       clientX: event.clientX - event.currentTarget.offsetLeft,
       clientY: event.clientY - event.currentTarget.offsetTop,
     };
   }
-
   private position = { clientX: 0, clientY: 0 };
-  public isOpenPrompt = false;
-  public isDisplayContextMenu: boolean = false;
-  public rightClickMenuItems: Array<ContextMenuModel> = [];
-  public rightClickMenuPositionX: number = 0;
-  public rightClickMenuPositionY: number = 0;
-  public zoomScale = 1;
   private noOfItemsToShowInitially: number = 5;
-
   private itemsToLoad: number = 5;
-
   private items = [
     {
       src: 'assets/1.png',
@@ -57,19 +53,25 @@ export class AppComponent {
     },
   ];
 
+  public isOpenPrompt = false;
+  public isDisplayContextMenu: boolean = false;
+  public rightClickMenuItems: Array<ContextMenuModel> = [];
+  public rightClickMenuPositionX: number = 0;
+  public rightClickMenuPositionY: number = 0;
+  public zoomScale: number = 1;
   public itemsToShow = this.items.slice(0, this.noOfItemsToShowInitially);
   public isFullListDisplayed: boolean = false;
+
+  constructor(public dialog: MatDialog, public dataService: DataService) {}
 
   public openDialog(isImage: boolean = false) {
     this.dialog.open(DialogComponent, {
       data: {
         isImage,
-        position: this.getCursorPostitionStyle(),
+        position: this.getCursorPosititionStyle(),
       },
     });
   }
-
-  constructor(public dialog: MatDialog, public dataService: DataService) {}
 
   public zoomIn(): void {
     this.zoomScale *= 1.1;
@@ -85,13 +87,13 @@ export class AppComponent {
     this.rightClickMenuItems = [
       {
         menuText: 'Image',
-        menuEvent: 'Handle',
+        menuEvent: 'image',
       },
       {
         menuText: 'Notion',
-        menuEvent: 'Handle',
+        menuEvent: 'notion',
       },
-    ] as ContextMenuModel[];
+    ];
 
     this.rightClickMenuPositionX = event.clientX;
     this.rightClickMenuPositionY = event.clientY;
@@ -105,15 +107,17 @@ export class AppComponent {
     };
   }
 
-  public getCursorPostitionStyle(): Position {
+  public getCursorPosititionStyle(): Position {
     return {
-      position: 'fixed',
+      position: 'relative',
       left: `${this.position.clientX}px`,
       top: `${this.position.clientY}px`,
     };
   }
 
   public handleMenuItemClick(event: { data: any }) {
+    console.log(event.data, this.rightClickMenuItems[0].menuEvent);
+
     switch (event.data) {
       case this.rightClickMenuItems[0].menuEvent:
         this.openDialog(true);
@@ -131,18 +135,18 @@ export class AppComponent {
     this.zoomScale *= delta;
   }
 
-  public removeItem(index: number, isImage: boolean = false) {
+  public removeItem(index: number, isImage: boolean = false): void {
     if (isImage) {
       return this.dataService.images.next(
-        this.dataService.images.getValue().filter((_, i) => i !== index)
+        this.dataService.images.getValue().filter((_, i: number) => i !== index)
       );
     }
     this.dataService.notion.next(
-      this.dataService.notion.getValue().filter((_, i) => i !== index)
+      this.dataService.notion.getValue().filter((_, i: number) => i !== index)
     );
   }
 
-  public onScroll() {
+  public onScroll(): void {
     if (this.noOfItemsToShowInitially <= this.items.length) {
       this.noOfItemsToShowInitially += this.itemsToLoad;
       this.itemsToShow = this.items.slice(0, this.noOfItemsToShowInitially);
@@ -150,5 +154,12 @@ export class AppComponent {
     } else {
       this.isFullListDisplayed = true;
     }
+  }
+
+  public save(): void {
+    console.log([
+      ...this.dataService.notion.getValue(),
+      ...this.dataService.images.getValue(),
+    ]);
   }
 }
